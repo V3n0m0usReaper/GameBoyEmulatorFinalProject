@@ -1,8 +1,8 @@
 #include "Cmc.h"
 
-void Cmc::initialise(vector<Byte> cartridgeBuffer)
+void Cmc::initialise(vector<Byte> cartridge_buffer)
 {
-	CartridgeRom = cartridgeBuffer;
+	CartridgeRom = cartridge_buffer;
 	ERAM = vector<Byte>(0x8000);
 }
 
@@ -16,43 +16,28 @@ void Cmc::setRam(vector<Byte> data)
 	ERAM = data;
 }
 
-void Cmc::save(ofstream& file)
-{
-	cout << "save failed" << endl;
+void Cmc::save(ofstream& file) {
+	cout << "did nothing" << endl;
+}
+void Cmc::load(ifstream& file) {
+	cout << "did nothing" << endl;
 }
 
-void Cmc::load(ifstream& file)
-{
-	cout << "load failed" << endl;
-}
-
-
-//this is the memory controller for any roms that use 32kb of space and dont need a memory controller
 Byte MemoryBankController0::readData(Address location)
 {
 	if (location >= 0x0000 && location <= 0x7FFF)
-	{
 		return CartridgeRom[location];
-	}
 	else if (location >= 0xA000 && location <= 0xBFFF)
-	{
 		return ERAM[location & 0x1FFF];
-	}
 	else
-	{
 		return 0x00;
-	}
 }
 
 void MemoryBankController0::writeData(Address location, Byte data)
 {
 	if (location >= 0xA000 && location <= 0xBFFF)
-	{
 		ERAM[location & 0x1FFF] = data;
-	}
 }
-
-// this is the code for the memory controller 1 game roms. 
 
 Byte MemoryBankController1::readData(Address location)
 {
@@ -62,24 +47,22 @@ Byte MemoryBankController1::readData(Address location)
 	}
 	else if (location >= 0x4000 && location <= 0x7FFF)
 	{
-		Byte tempID = RomBankID;
+		Byte temp_id = RomBankID;
 
-		int offsetLocation = location - 0x4000;
-		int lookup = (tempID * 0x4000) + offsetLocation;
+		int offset = location - 0x4000;
+		int lookup = (temp_id * 0x4000) + offset;
 
 		return CartridgeRom[lookup];
 	}
-
 	else if (location >= 0xA000 && location <= 0xBFFF)
 	{
 		if (EnableRamAccess == false)
-		{
 			return 0xFF;
-		}
-		Byte tempID = (EnableRamBank) ? RamBankID : 0x00;
 
-		int offsetLocation = location - 0xA000;
-		int lookup = (tempID * 0x2000) + offsetLocation;
+		Byte temp_id = (EnableRamBank) ? RamBankID : 0x00;
+
+		int offset = location - 0xA000;
+		int lookup = (temp_id * 0x2000) + offset;
 
 		return ERAM[lookup];
 	}
@@ -91,12 +74,11 @@ void MemoryBankController1::writeData(Address location, Byte data)
 	{
 		EnableRamAccess = ((data & 0x0A) > 0) ? true : false;
 	}
-
 	else if (location >= 0x2000 && location <= 0x3FFF)
 	{
-		Byte bankID = data & 0x1F;
+		Byte bank_id = data & 0x1F;
 
-		RomBankID = (RomBankID & 0xE0) | bankID;
+		RomBankID = (RomBankID & 0xE0) | bank_id;
 
 		switch (RomBankID)
 		{
@@ -107,19 +89,18 @@ void MemoryBankController1::writeData(Address location, Byte data)
 			RomBankID++;
 			break;
 		}
-
 	}
 	else if (location >= 0x4000 && location <= 0x5FFF)
 	{
-		Byte bankID = data & 0x03;
+		Byte bank_id = data & 0x03;
 
 		if (EnableRamBank)
 		{
-			RamBankID = bankID;
+			RamBankID = bank_id;
 		}
 		else
 		{
-			RomBankID = RomBankID | (bankID << 5);
+			RomBankID = RomBankID | (bank_id << 5);
 
 			switch (RomBankID)
 			{
@@ -132,19 +113,16 @@ void MemoryBankController1::writeData(Address location, Byte data)
 			}
 		}
 	}
-
 	else if (location >= 0x6000 && location <= 0x7FFF)
 	{
-		EnableRamBank = bitSet(data, BIT_0);
+		RamBankID = bitSet(data, BIT_0);
 	}
-
 	else if (location >= 0xA000 && location <= 0xBFFF)
 	{
 		if (EnableRamAccess)
 		{
-			int offsetLocation = location - 0xA000;
-			int lookup = (RamBankID * 0x2000) + offsetLocation;
-
+			int offset = location - 0xA000;
+			int lookup = (RamBankID * 0x2000) + offset;
 
 			ERAM[lookup] = data;
 		}
@@ -159,7 +137,7 @@ void MemoryBankController1::save(ofstream& file)
 	file.write((char*)&EnableRamAccess, sizeof(EnableRamAccess));
 	file.write((char*)&mode, sizeof(mode));
 
-	cout << "Saved register data" << endl;
+	cout << "wrote registers" << endl;
 }
 
 void MemoryBankController1::load(ifstream& file)
@@ -169,9 +147,11 @@ void MemoryBankController1::load(ifstream& file)
 	file.read((char*)&EnableRamBank, sizeof(EnableRamBank));
 	file.read((char*)&EnableRamAccess, sizeof(EnableRamAccess));
 	file.read((char*)&mode, sizeof(mode));
-
-	cout << "Loaded register data" << endl;
+	cout << "read registers" << endl;
 }
+
+Byte MemoryBankController2::readData(Address location) { return 0; }
+void MemoryBankController2::writeData(Address location, Byte data) {}
 
 Byte MemoryBankController3::readData(Address location)
 {
@@ -181,23 +161,21 @@ Byte MemoryBankController3::readData(Address location)
 	}
 	else if (location >= 0x4000 && location <= 0x7FFF)
 	{
-		int offsetLocation = location - 0x4000;
-		int lookup = (RomBankID * 0x4000) + offsetLocation;
+		int offset = location - 0x4000;
+		int lookup = (RomBankID * 0x4000) + offset;
 
 		return CartridgeRom[lookup];
 	}
 	else if (location >= 0xA000 && location <= 0xBFFF)
 	{
 		if (RTCEnabled)
-		{
 			return 0x00;
-		}
+
 		if (EnableRamAccess == false)
-		{
 			return 0xFF;
-		}
-		int offsetLocation = location - 0xA000;
-		int lookup = (RamBankID * 0x2000) + offsetLocation;
+
+		int offset = location - 0xA000;
+		int lookup = (RamBankID * 0x2000) + offset;
 
 		return ERAM[lookup];
 	}
@@ -221,13 +199,13 @@ void MemoryBankController3::writeData(Address location, Byte data)
 	else if (location >= 0x2000 && location <= 0x3FFF)
 	{
 		RomBankID = data & 0x7F;
+
 		if (RomBankID == 0)
-		{
 			RomBankID++;
-		}
 	}
 	else if (location >= 0x4000 && location <= 0x5FFF)
 	{
+
 		if (data <= 0x3)
 		{
 			RTCEnabled = false;
@@ -237,28 +215,24 @@ void MemoryBankController3::writeData(Address location, Byte data)
 		{
 			RTCEnabled = true;
 		}
-
 	}
 	else if (location >= 0x6000 && location <= 0x7FFF)
 	{
-
 	}
 	else if (location >= 0xA000 && location <= 0xBFFF)
 	{
 		if (!RTCEnabled)
 		{
 			if (!EnableRamAccess)
-			{
 				return;
-			}
-			int offsetLocation = location - 0xA000;
-			int lookup = (RamBankID * 0x2000) + offsetLocation;
 
-			ERAM[lookup];
+			int offset = location - 0xA000;
+			int lookup = (RamBankID * 0x2000) + offset;
+
+			ERAM[lookup] = data;
 		}
 		else
 		{
-
 		}
 	}
 }
@@ -271,8 +245,7 @@ void MemoryBankController3::save(ofstream& file)
 	file.write((char*)&EnableRamAccess, sizeof(EnableRamAccess));
 	file.write((char*)&mode, sizeof(mode));
 	file.write((char*)&RTCEnabled, sizeof(RTCEnabled));
-
-	cout << "Save MBC3 registers"<<endl;
+	cout << "wrote registers" << endl;
 }
 
 void MemoryBankController3::load(ifstream& file)
@@ -283,13 +256,5 @@ void MemoryBankController3::load(ifstream& file)
 	file.read((char*)&EnableRamAccess, sizeof(EnableRamAccess));
 	file.read((char*)&mode, sizeof(mode));
 	file.read((char*)&RTCEnabled, sizeof(RTCEnabled));
-
-	cout << "Load MBC3 registers" << endl;
+	cout << "read registers" << endl;
 }
-Byte MemoryBankController2::readData(Address location)
-{
-	return 0;
-}
-
-void MemoryBankController2::writeData(Address location, Byte data)
-{}

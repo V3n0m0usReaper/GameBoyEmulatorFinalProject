@@ -18,14 +18,16 @@ public:
 
 	int scanlines = 0;
 	int width = 160;
-	int length = 144;
+	int height = 144;
 
 	bool palleteEmulation = true;
+
 	bool enableDebug = false;
 	bool forceBgMap = false;
 	bool forceBgLocation = false;
 
 	void initialise(CMemory* _memory);
+
 	void updateScanline(Byte currentScanline);
 	void render();
 	bool checkLCD();

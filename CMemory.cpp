@@ -1,10 +1,11 @@
 #include "CMemory.h"
+
 CMemory::CMemory()
 {
-	WRAM = vector<Byte>(0x2000);
-	ZRAM = vector<Byte>(0x0100);
-	VRAM = vector<Byte>(0x2000);
-	OAM = vector<Byte>(0x0100);
+	WRAM = vector<Byte>(0x2000); 
+	ZRAM = vector<Byte>(0x0100); 
+	VRAM = vector<Byte>(0x2000); 
+	OAM = vector<Byte>(0x0100); 
 
 	P1 = MemoryRegister(&ZRAM[0x00]);
 	DIV = MemoryRegister(&ZRAM[0x04]);
@@ -28,6 +29,7 @@ CMemory::CMemory()
 
 	reset();
 }
+
 void CMemory::reset()
 {
 	fill(WRAM.begin(), WRAM.end(), 0);
@@ -67,58 +69,53 @@ void CMemory::romLoad(std::string location)
 	{
 		Byte character = buffer[i];
 		if (character == 0)
-		{
 			break;
-		}
 		else
-		{
 			title.push_back(tolower(character));
-		}
 	}
 
 	rom = title;
 
-	cout << "Game name: " << title << endl;
-	Byte gbType = buffer[0x0143];
-	cout << "Gameboy Type: " << ((gbType == 0x80) ? "Gameboy Color" : "Gameboy") << endl;
+	cout << "Title: " << title << endl;
+	Byte gb_type = buffer[0x0143];
+	cout << "Gameboy Type: " << ((gb_type == 0x80) ? "GB Color" : "GB") << endl;
 	Byte functions = buffer[0x0146];
-	cout << "Use " << ((functions == 0x3) ? "Super" : "") << "Gameboy functions" << endl;
+	cout << "Use " << ((functions == 0x3) ? "Super " : "") << "Gameboy functions" << endl;
 
-	string cartridgeType[0x100];
-	cartridgeType[0x0] = "ROM ONLY";
-	cartridgeType[0x1] = "ROM+MBC1";
-	cartridgeType[0x2] = "ROM+MBC1+RAM";
-	cartridgeType[0x3] = "ROM+MBC1+RAM+BATT";
-	cartridgeType[0x5] = "ROM+MBC2";
-	cartridgeType[0x6] = "ROM+MBC2+BATTERY";
-	cartridgeType[0x8] = "ROM+RAM";
-	cartridgeType[0x9] = "ROM+RAM+BATTERY";
-	cartridgeType[0xB] = "ROM+MMM01";
-	cartridgeType[0xC] = "ROM+MMM01+SRAM";
-	cartridgeType[0xD] = "ROM+MMM01+SRAM+BATT";
-	cartridgeType[0xF] = "ROM+MBC3+TIMER+BATT";
-	cartridgeType[0x10] = "ROM+MBC3+TIMER+RAM+BATT";
-	cartridgeType[0x11] = "ROM+MBC3";
-	cartridgeType[0x12] = "ROM+MBC3+RAM";
-	cartridgeType[0x13] = "ROM+MBC3+RAM+BATT";
-	cartridgeType[0x19] = "ROM+MBC5";
-	cartridgeType[0x1A] = "ROM+MBC5+RAM";
-	cartridgeType[0x1B] = "ROM+MBC5+RAM+BATT";
-	cartridgeType[0x1C] = "ROM+MBC5+RUMBLE";
-	cartridgeType[0x1D] = "ROM+MBC5+RUMBLE+SRAM";
-	cartridgeType[0x1E] = "ROM+MBC5+RUMBLE+SRAM+BATT";
-	cartridgeType[0x1F] = "Pocket Camera";
-	cartridgeType[0xFD] = "Bandai TAMA5";
-	cartridgeType[0xFE] = "Hudson HuC-3";
-	cartridgeType[0xFF] = "Hudson HuC-1";
+	string cart_types[0x100];
+	cart_types[0x0] = "ROM ONLY";
+	cart_types[0x1] = "ROM+MBC1";
+	cart_types[0x2] = "ROM+MBC1+RAM";
+	cart_types[0x3] = "ROM+MBC1+RAM+BATT";
+	cart_types[0x5] = "ROM+MBC2";
+	cart_types[0x6] = "ROM+MBC2+BATTERY";
+	cart_types[0x8] = "ROM+RAM";
+	cart_types[0x9] = "ROM+RAM+BATTERY";
+	cart_types[0xB] = "ROM+MMM01";
+	cart_types[0xC] = "ROM+MMM01+SRAM";
+	cart_types[0xD] = "ROM+MMM01+SRAM+BATT";
+	cart_types[0xF] = "ROM+MBC3+TIMER+BATT";
+	cart_types[0x10] = "ROM+MBC3+TIMER+RAM+BATT";
+	cart_types[0x11] = "ROM+MBC3";
+	cart_types[0x12] = "ROM+MBC3+RAM";
+	cart_types[0x13] = "ROM+MBC3+RAM+BATT";
+	cart_types[0x19] = "ROM+MBC5";
+	cart_types[0x1A] = "ROM+MBC5+RAM";
+	cart_types[0x1B] = "ROM+MBC5+RAM+BATT";
+	cart_types[0x1C] = "ROM+MBC5+RUMBLE";
+	cart_types[0x1D] = "ROM+MBC5+RUMBLE+SRAM";
+	cart_types[0x1E] = "ROM+MBC5+RUMBLE+SRAM+BATT";
+	cart_types[0x1F] = "Pocket Camera";
+	cart_types[0xFD] = "Bandai TAMA5";
+	cart_types[0xFE] = "Hudson HuC-3";
+	cart_types[0xFF] = "Hudson HuC-1";
 
-
-	Byte cartridge = buffer[0x0147];
-	cout << "Cartridge Type: " << cartridgeType[cartridge] << endl;
+	Byte cart = buffer[0x0147];
+	cout << "Cartridge Type: " << cart_types[cart] << endl;
 
 	delete controller;
 
-	switch (cartridge)
+	switch (cart)
 	{
 	case 0x01:
 	case 0x02:
@@ -127,7 +124,7 @@ void CMemory::romLoad(std::string location)
 		break;
 	case 0x05:
 	case 0x06:
-		cout << "MBC2 not implemented" << endl;
+		cout << "CONTROLLER NOT IMPLEMENTED" << endl;
 		controller = new MemoryBankController2();
 		break;
 	case 0x0F:
@@ -145,28 +142,17 @@ void CMemory::romLoad(std::string location)
 	controller->initialise(buffer);
 
 	Byte rsize = buffer[0x0148];
-	cout << "ROM size: " << (32 << rsize) << "kB " << pow(2, rsize + 1) << " banks" << endl;
-	int size;
-	int banks;
+	cout << "ROM Size: " << (32 << rsize) << "kB " << pow(2, rsize + 1) << " banks" << endl;
+	int size, banks;
 	switch (buffer[0x149])
 	{
-	case 1:
-		size = 2;
-		banks = 1;
-	case 2:
-		size = 8;
-		banks = 1;
-	case 3:
-		size = 32;
-		banks = 4;
-	case 4:
-		size = 128;
-		banks = 16;
-	default:
-		size = 0;
-		banks = 0;
+	case 1: size = 2; banks = 1;
+	case 2: size = 8; banks = 1;
+	case 3: size = 32; banks = 4;
+	case 4: size = 128; banks = 16;
+	default: size = 0; banks = 0;
 	}
-	cout << "RAM size: " << size << "kB " << banks << " banks" << endl;
+	cout << "RAM Size: " << size << "kB " << banks << " banks" << endl;
 	cout << "Destination Code: " << (buffer[0x014A] == 1 ? "Non-" : "") << "Japanese" << endl;
 }
 
@@ -214,7 +200,6 @@ void CMemory::dmaTransfer()
 	{
 		writeData((0xFE00 + i), readData(address + i));
 	}
-
 }
 
 Byte CMemory::joypadState()
@@ -234,6 +219,7 @@ Byte CMemory::joypadState()
 
 Byte CMemory::readData(Address location)
 {
+
 	switch (location & 0xF000)
 	{
 	case 0x0000:
@@ -249,6 +235,7 @@ Byte CMemory::readData(Address location)
 	case 0x8000:
 	case 0x9000:
 		return VRAM[location & 0x1FFF];
+
 	case 0xA000:
 	case 0xB000:
 		return controller->readData(location);
@@ -257,23 +244,14 @@ Byte CMemory::readData(Address location)
 	case 0xD000:
 	case 0xE000:
 		return WRAM[location & 0x1FFF];
+
 	case 0xF000:
 		switch (location & 0x0F00)
 		{
-		case 0x000:
-		case 0x100:
-		case 0x200:
-		case 0x300:
-		case 0x400:
-		case 0x500:
-		case 0x600:
-		case 0x700:
-		case 0x800:
-		case 0x900:
-		case 0xA00:
-		case 0xB00:
-		case 0xC00:
-		case 0xD00:
+		case 0x000: case 0x100: case 0x200: case 0x300:
+		case 0x400: case 0x500: case 0x600: case 0x700:
+		case 0x800: case 0x900: case 0xA00: case 0xB00:
+		case 0xC00: case 0xD00:
 			return WRAM[location & 0x1FFF];
 
 		case 0xE00:
@@ -281,13 +259,9 @@ Byte CMemory::readData(Address location)
 
 		case 0xF00:
 			if (location == 0xFF00)
-			{
 				return joypadState();
-			}
 			else
-			{
 				return ZRAM[location & 0xFF];
-			}
 		}
 	default:
 		return 0xFF;
@@ -306,52 +280,47 @@ void CMemory::writeData(Address location, Byte data)
 	case 0x5000:
 	case 0x6000:
 	case 0x7000:
-		 controller->writeData(location, data);
-		 break;
+		controller->writeData(location, data);
+		break;
 
 	case 0x8000:
 	case 0x9000:
-		 VRAM[location & 0x1FFF] = data;
-		 break;
+		VRAM[location & 0x1FFF] = data;
+		break;
+
 	case 0xA000:
 	case 0xB000:
-		 controller->writeData(location, data);
-		 break;
+		controller->writeData(location, data);
+		break;
 
 	case 0xC000:
 	case 0xD000:
 	case 0xE000:
-		 WRAM[location & 0x1FFF] = data;
+		WRAM[location & 0x1FFF] = data;
+		break;
+
 	case 0xF000:
 		switch (location & 0x0F00)
 		{
-		case 0x000:
-		case 0x100:
-		case 0x200:
-		case 0x300:
-		case 0x400:
-		case 0x500:
-		case 0x600:
-		case 0x700:
-		case 0x800:
-		case 0x900:
-		case 0xA00:
-		case 0xB00:
-		case 0xC00:
-		case 0xD00:
-			 WRAM[location & 0x1FFF] = data;
-			 break;
+
+		case 0x000: case 0x100: case 0x200: case 0x300:
+		case 0x400: case 0x500: case 0x600: case 0x700:
+		case 0x800: case 0x900: case 0xA00: case 0xB00:
+		case 0xC00: case 0xD00:
+			WRAM[location & 0x1FFF] = data;
+			break;
 
 		case 0xE00:
-			 OAM[location & 0xFF] = data;
+			OAM[location & 0xFF] = data;
+			break;
 
 		case 0xF00:
 			zeroPageWrite(location, data);
 			break;
 		}
 	}
-	
 }
+
 void CMemory::zeroPageWrite(Address location, Byte data)
 {
 	switch (location)
@@ -359,12 +328,15 @@ void CMemory::zeroPageWrite(Address location, Byte data)
 	case 0xFF00:
 		ZRAM[0x00] = (data & 0x30);
 		break;
+
 	case 0xFF04:
 		ZRAM[0x04] = 0;
 		break;
+
 	case 0xFF41:
 		ZRAM[0x41] = (data & 0xFC) | (STAT.get() & 0x03);
 		break;
+
 	case 0xFF44:
 		ZRAM[0x44] = 0;
 		break;
@@ -373,6 +345,7 @@ void CMemory::zeroPageWrite(Address location, Byte data)
 		ZRAM[0x46] = data;
 		dmaTransfer();
 		break;
+
 	default:
 		ZRAM[location & 0xFF] = data;
 		break;

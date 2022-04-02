@@ -21,7 +21,6 @@ private:
 
 	void eventHandler();
 
-	//these will check to see what buttons have been pressed on the joy pad
 	void pressed(Key key);
 	void released(Key key);
 	int getKeyID(Key key);

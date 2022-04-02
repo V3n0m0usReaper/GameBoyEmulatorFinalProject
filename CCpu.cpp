@@ -6,6 +6,7 @@ void CCpu::initialise(CMemory* _memory)
 	reset();
 }
 
+
 void CCpu::reset()
 {
 	ARegister = 0x01;
@@ -32,7 +33,6 @@ void CCpu::save(ofstream& file)
 	file.write((char*)&LRegister, sizeof(LRegister));
 	file.write((char*)&SPRegister, sizeof(SPRegister));
 	file.write((char*)&PCRegister, sizeof(PCRegister));
-
 }
 
 void CCpu::load(ifstream& file)
@@ -61,10 +61,12 @@ void CCpu::flagSet(int flag, bool value)
 	{
 		FRegister |= flag;
 	}
+		
 	else
 	{
 		FRegister &= ~(flag);
 	}
+		
 }
 
 void CCpu::LD(Byte& destination, Byte value)
@@ -72,9 +74,9 @@ void CCpu::LD(Byte& destination, Byte value)
 	destination = value;
 }
 
-void CCpu::LD(Byte& destinaton, Address addr)
+void CCpu::LD(Byte& destination, Address addr)
 {
-	destinaton = memory->readData(addr);
+	destination = memory->readData(addr);
 }
 
 void CCpu::LD(Address addr, Byte value)
@@ -82,23 +84,23 @@ void CCpu::LD(Address addr, Byte value)
 	memory->writeData(addr, value);
 }
 
-void CCpu::LD(Pair registerPair, Byte upper, Byte lower)
+void CCpu::LD(Pair reg_pair, Byte upper, Byte lower)
 {
-	registerPair.set(upper, lower);
+	reg_pair.set(upper, lower);
 }
 
-void CCpu::LD(Byte16Bit& registerPair, Byte upper, Byte lower)
+void CCpu::LD(Byte16Bit& reg_pair, Byte upper, Byte lower)
 {
-	registerPair = combineByte(upper, lower);
+	reg_pair = combineByte(upper, lower);
 }
 
 void CCpu::LDHL(Byte value)
 {
-	signedByte16Bit signedValue = (signedByte16Bit)(signedByte)value;
-	Byte16Bit result = (Byte16Bit)((signedByte16Bit)SPRegister + signedValue);
+	signedByte16Bit signed_val = (signedByte16Bit)(signedByte)value;
+	Byte16Bit result = (Byte16Bit)((signedByte16Bit)SPRegister + signed_val);
 
-	flagSet(flagCarry, (result & 0xFF) < (SPRegister & 0xFF));
-	flagSet(flagHalfCarry, (result & 0xF) < (SPRegister & 0xF));
+	flagSet(flagCarry, (result & 0xFF) < (SPRegister & 0xFF)); 
+	flagSet(flagHalfCarry, (result & 0xF) < (SPRegister & 0xF)); 
 	flagSet(zeroFlag, false);
 	flagSet(subtractionFlag, false);
 
@@ -142,8 +144,8 @@ void CCpu::ADD(Byte& target, Byte value)
 
 void CCpu::ADD(Byte& target, Address addr)
 {
-	Byte value = memory->readData(addr);
-	ADD(target, value);
+	Byte val = memory->readData(addr);
+	ADD(target, val);
 }
 
 void CCpu::ADC(Byte& target, Byte value)
@@ -161,18 +163,18 @@ void CCpu::ADC(Byte& target, Byte value)
 
 void CCpu::ADC(Byte& target, Address addr)
 {
-	Byte value = memory->readData(addr);
-	ADC(target, value);
+	Byte val = memory->readData(addr);
+	ADC(target, val);
 }
 
 void CCpu::SUB(Byte& target, Byte value)
 {
 	signedByte16Bit result = (signedByte16Bit)target - (signedByte16Bit)value;
 
-	signedByte16Bit sTarget = (signedByte16Bit)target;
-	signedByte16Bit sValue = (signedByte16Bit)value;
+	signedByte16Bit s_target = (signedByte16Bit)target;
+	signedByte16Bit s_value = (signedByte16Bit)value;
 
-	flagSet(flagHalfCarry, (((sTarget & 0xF) - (sValue & 0xF)) < 0));
+	flagSet(flagHalfCarry, (((s_target & 0xF) - (s_value & 0xF)) < 0));
 	flagSet(flagCarry, result < 0);
 	flagSet(subtractionFlag, true);
 	flagSet(zeroFlag, (result & 0xFF) == 0);
@@ -182,8 +184,8 @@ void CCpu::SUB(Byte& target, Byte value)
 
 void CCpu::SUB(Byte& target, Address addr)
 {
-	Byte value = memory->readData(addr);
-	SUB(target, value);
+	Byte val = memory->readData(addr);
+	SUB(target, val);
 }
 
 void CCpu::SBC(Byte& target, Byte value)
@@ -191,10 +193,10 @@ void CCpu::SBC(Byte& target, Byte value)
 	Byte16Bit carry = (FRegister & flagCarry) ? 1 : 0;
 	signedByte16Bit result = (signedByte16Bit)target - (signedByte16Bit)value - carry;
 
-	signedByte16Bit sTarget = (signedByte16Bit)target;
-	signedByte16Bit sValue = (signedByte16Bit)value;
+	signedByte16Bit s_target = (signedByte16Bit)target;
+	signedByte16Bit s_value = (signedByte16Bit)value;
 
-	flagSet(flagHalfCarry, (((sTarget & 0xF) - (sValue & 0xF) - carry) < 0));
+	flagSet(flagHalfCarry, (((s_target & 0xF) - (s_value & 0xF) - carry) < 0));
 	flagSet(flagCarry, result < 0);
 	flagSet(subtractionFlag, true);
 	flagSet(zeroFlag, (result & 0xFF) == 0);
@@ -220,14 +222,13 @@ void CCpu::AND(Byte& target, Byte value)
 
 void CCpu::AND(Byte& target, Address addr)
 {
-	Byte value = memory->readData(addr);
-	AND(target, value);
+	Byte val = memory->readData(addr);
+	AND(target, val);
 }
 
 void CCpu::OR(Byte& target, Byte value)
 {
 	target |= value;
-
 
 	flagSet(zeroFlag, (target == 0));
 	flagSet(subtractionFlag, false);
@@ -237,8 +238,8 @@ void CCpu::OR(Byte& target, Byte value)
 
 void CCpu::OR(Byte& target, Address addr)
 {
-	Byte value = memory->readData(addr);
-	OR(target, value);
+	Byte val = memory->readData(addr);
+	OR(target, val);
 }
 
 void CCpu::XOR(Byte& target, Byte value)
@@ -250,26 +251,28 @@ void CCpu::XOR(Byte& target, Byte value)
 	flagSet(flagHalfCarry, false);
 	flagSet(flagCarry, false);
 }
+
 void CCpu::XOR(Byte& target, Address addr)
 {
-	Byte value = memory->readData(addr);
-	XOR(target, value);
+	Byte val = memory->readData(addr);
+	XOR(target, val);
 }
+
 
 void CCpu::CP(Byte& target, Byte value)
 {
 	int result = target - value;
 
-	flagSet(zeroFlag, (result == 0));
-	flagSet(subtractionFlag, true);
+	flagSet(zeroFlag, (result == 0)); 
+	flagSet(subtractionFlag, true); 
 	flagSet(flagHalfCarry, (((target & 0xF) - (value & 0xF)) < 0));
 	flagSet(flagCarry, (result < 0));
 }
 
 void CCpu::CP(Byte& target, Address addr)
 {
-	Byte value = memory->readData(addr);
-	CP(target, value);
+	Byte val = memory->readData(addr);
+	CP(target, val);
 }
 
 void CCpu::INC(Byte& target)
@@ -278,6 +281,7 @@ void CCpu::INC(Byte& target)
 	flagSet(zeroFlag, (result == 0));
 	flagSet(subtractionFlag, false);
 	flagSet(flagHalfCarry, ((((target & 0xF) + 1) & 0x10) != 0));
+
 	target = result;
 }
 
@@ -305,20 +309,20 @@ void CCpu::DEC(Address addr)
 	memory->writeData(addr, value);
 }
 
+// 16-bit arithmetic
+
 void CCpu::ADD16(Byte16Bit target, Byte16Bit value)
 {
 	int result = target + value;
-
 	flagSet(subtractionFlag, false);
 	flagSet(flagHalfCarry, ((((target & 0xFFF) + (value & 0xFFF)) & 0x1000) != 0));
 	flagSet(flagCarry, (result > 0xFFFF));
-
 }
 
-void CCpu::ADDHL(Pair pairRegister)
+void CCpu::ADDHL(Pair reg_pair)
 {
 	Byte16Bit target = Pair(HRegister, LRegister).get();
-	Byte16Bit value = pairRegister.get();
+	Byte16Bit value = reg_pair.get();
 	Byte16Bit result = target + value;
 
 	ADD16(target, value);
@@ -330,13 +334,15 @@ void CCpu::ADDHLSP()
 {
 	Byte high = highByte(SPRegister);
 	Byte low = lowByte(SPRegister);
+
 	ADDHL(Pair(high, low));
 }
 
 void CCpu::ADDSP(Byte value)
 {
-	signedByte16Bit valueSigned = (signedByte16Bit)(signedByte)value;
-	Byte16Bit result = (Byte16Bit)((signedByte16Bit)SPRegister + valueSigned);
+	signedByte16Bit val_signed = (signedByte16Bit)(signedByte16Bit)value;
+	Byte16Bit result = (Byte16Bit)((signedByte16Bit)SPRegister + val_signed);
+
 	flagSet(flagCarry, (result & 0xFF) < (SPRegister & 0xFF));
 	flagSet(flagHalfCarry, (result & 0xF) < (SPRegister & 0xF));
 	flagSet(subtractionFlag, false);
@@ -345,9 +351,9 @@ void CCpu::ADDSP(Byte value)
 	SPRegister = result;
 }
 
-void CCpu::INC(Pair pairRegister)
+void CCpu::INC(Pair reg_pair)
 {
-	pairRegister.set(pairRegister.get() + 1);
+	reg_pair.set(reg_pair.get() + 1);
 }
 
 void CCpu::INCSP()
@@ -355,9 +361,9 @@ void CCpu::INCSP()
 	SPRegister++;
 }
 
-void CCpu::DEC(Pair pairRegister)
+void CCpu::DEC(Pair reg_pair)
 {
-	pairRegister.set(pairRegister.get() - 1);
+	reg_pair.set(reg_pair.get() - 1); 
 }
 
 void CCpu::DECSP()
@@ -365,13 +371,14 @@ void CCpu::DECSP()
 	SPRegister--;
 }
 
-void CCpu::RL(Byte& target, bool carry, bool flag0)
+void CCpu::RL(Byte& target, bool carry, bool zero_flag)
 {
 	int bit7 = ((target & 0x80) != 0);
 	target = target << 1;
+
 	target |= (carry) ? ((FRegister & flagCarry) != 0) : bit7;
 
-	flagSet(zeroFlag, ((flag0) ? (target == 0) : false));
+	flagSet(zeroFlag, ((zero_flag) ? (target == 0) : false));
 	flagSet(subtractionFlag, false);
 	flagSet(flagHalfCarry, false);
 	flagSet(flagCarry, (bit7 != 0));
@@ -384,13 +391,14 @@ void CCpu::RL(Address addr, bool carry)
 	memory->writeData(addr, value);
 }
 
-void CCpu::RR(Byte& target, bool carry, bool flag0)
+void CCpu::RR(Byte& target, bool carry, bool zero_flag)
 {
 	int bit1 = ((target & 0x1) != 0);
 	target = target >> 1;
-	target |= (carry) ? (((FRegister & flagCarry) != 0) << 7) : (bit1 << 7);
 
-	flagSet(zeroFlag, ((flag0) ? (target == 0) : false));
+	target |= (carry) ? (((FRegister& flagCarry) != 0) << 7) : (bit1 << 7);
+
+	flagSet(zeroFlag, ((zero_flag) ? (target == 0) : false));
 	flagSet(subtractionFlag, false);
 	flagSet(flagHalfCarry, false);
 	flagSet(flagCarry, (bit1 != 0));
@@ -402,6 +410,7 @@ void CCpu::RR(Address addr, bool carry)
 	RR(value, carry, true);
 	memory->writeData(addr, value);
 }
+
 
 void CCpu::LeftShift(Byte& target)
 {
@@ -422,20 +431,18 @@ void CCpu::LeftShift(Address addr)
 	memory->writeData(addr, data);
 }
 
-void CCpu::RightShift(Byte& target, bool includeTopBit)
+
+void CCpu::RightShift(Byte& target, bool include_top_bit)
 {
-	bool topBitSet = bitSet(target, BIT_7);
+	bool top_bit_set = bitSet(target, BIT_7);
 
 	Byte result;
 
-	if (includeTopBit)
-	{
-		result = (topBitSet) ? ((target >> 1) | 0x80) : (target >> 1);
-	}
+	if (include_top_bit)
+		result = (top_bit_set) ? ((target >> 1) | 0x80) : (target >> 1);
 	else
-	{
 		result = target >> 1;
-	}
+
 	flagSet(flagCarry, (target & 0x01) != 0);
 	flagSet(flagHalfCarry, false);
 	flagSet(subtractionFlag, false);
@@ -444,10 +451,10 @@ void CCpu::RightShift(Byte& target, bool includeTopBit)
 	target = result;
 }
 
-void CCpu::RightShift(Address addr, bool includeTopBit)
+void CCpu::RightShift(Address addr, bool include_top_bit)
 {
 	Byte data = memory->readData(addr);
-	RightShift(data, includeTopBit);
+	RightShift(data, include_top_bit);
 	memory->writeData(addr, data);
 }
 
@@ -482,6 +489,7 @@ void CCpu::SWAP(Byte& target)
 {
 	Byte first = target >> 4;
 	Byte second = target << 4;
+
 	Byte swapped = first | second;
 
 	target = swapped;
@@ -489,7 +497,7 @@ void CCpu::SWAP(Byte& target)
 	flagSet(flagCarry, false);
 	flagSet(flagHalfCarry, false);
 	flagSet(subtractionFlag, false);
-	flagSet(zeroFlag, (target ==0));
+	flagSet(zeroFlag, (target == 0));
 }
 
 void CCpu::SWAP(Address addr)
@@ -505,11 +513,13 @@ void CCpu::BIT(Byte target, int bit)
 	flagSet(flagHalfCarry, true);
 	flagSet(subtractionFlag, false);
 }
+
 void CCpu::BIT(Address addr, int bit)
 {
 	Byte value = memory->readData(addr);
 	BIT(value, bit);
 }
+
 void CCpu::SET(Byte& target, int bit)
 {
 	target = (target | (1 << bit));
@@ -533,6 +543,7 @@ void CCpu::RES(Address addr, int bit)
 	RES(value, bit);
 	memory->writeData(addr, value);
 }
+
 void CCpu::JP(Pair target)
 {
 	PCRegister = target.address();
@@ -542,72 +553,57 @@ void CCpu::JP(Pair target)
 void CCpu::JPNZ(Pair target)
 {
 	if ((FRegister & zeroFlag) == 0)
-	{
 		JP(target);
-	}
 }
 
 void CCpu::JPZ(Pair target)
 {
-	if ((FRegister & flagCarry) != 0)
-	{
+	if ((FRegister & zeroFlag) != 0)
 		JP(target);
-	}
 }
 
 void CCpu::JPNC(Pair target)
 {
 	if ((FRegister & flagCarry) == 0)
-	{
 		JP(target);
-	}
 }
 
 void CCpu::JPC(Pair target)
 {
 	if ((FRegister & flagCarry) != 0)
-	{
 		JP(target);
-	}
 }
+
 
 void CCpu::JR(Byte value)
 {
-	signedByte signedValue = ((signedByte)(value));
-	PCRegister += signedValue;
+	signedByte signed_val = ((signedByte)(value));
+	PCRegister += signed_val;
 	op(0, 1);
 }
 
 void CCpu::JRNZ(Byte value)
 {
 	if ((FRegister & zeroFlag) == 0)
-	{
 		JR(value);
-	}
 }
 
 void CCpu::JRZ(Byte value)
 {
 	if ((FRegister & zeroFlag) != 0)
-	{
 		JR(value);
-	}
 }
 
 void CCpu::JRNC(Byte value)
 {
 	if ((FRegister & flagCarry) == 0)
-	{
 		JR(value);
-	}
 }
 
 void CCpu::JRC(Byte value)
 {
 	if ((FRegister & flagCarry) != 0)
-	{
 		JR(value);
-	}
 }
 
 void CCpu::JPHL()
@@ -627,31 +623,25 @@ void CCpu::CALL(Byte low, Byte high)
 void CCpu::CALLNZ(Byte low, Byte high)
 {
 	if ((FRegister & zeroFlag) == 0)
-	{
 		CALL(low, high);
-	}
 }
+
 void CCpu::CALLZ(Byte low, Byte high)
 {
 	if ((FRegister & zeroFlag) != 0)
-	{
 		CALL(low, high);
-	}
 }
+
 void CCpu::CALLNC(Byte low, Byte high)
 {
 	if ((FRegister & flagCarry) == 0)
-	{
 		CALL(low, high);
-	}
 }
 
 void CCpu::CALLC(Byte low, Byte high)
 {
 	if ((FRegister & flagCarry) != 0)
-	{
 		CALL(low, high);
-	}
 }
 
 void CCpu::RET()
@@ -720,34 +710,24 @@ void CCpu::DAA()
 
 	bool add = ((FRegister & subtractionFlag) == 0);
 	bool carry = ((FRegister & flagCarry) != 0);
-	bool halfCarry = ((FRegister & flagHalfCarry) != 0);
+	bool half_carry = ((FRegister & flagHalfCarry) != 0);
 
 	Byte16Bit result = (Byte16Bit)ARegister;
 	Byte16Bit correction = (carry) ? 0x60 : 0x00;
 
-	if (halfCarry || (add) && ((result & 0x0F) > 9))
-	{
+	if (half_carry || (add) && ((result & 0x0F) > 9))
 		correction |= 0x06;
-	}
 
 	if (carry || (add) && (result > 0x99))
-	{
 		correction |= 0x60;
-	}
 
 	if (add)
-	{
 		result += correction;
-	}
 	else
-	{
 		result -= correction;
-	}
 
 	if (((correction << 2) & 0x100) != 0)
-	{
 		flagSet(flagCarry, true);
-	}
 
 	flagSet(flagHalfCarry, false);
 	ARegister = (Byte)(result & 0xFF);
@@ -777,17 +757,17 @@ void CCpu::CCF()
 
 void CCpu::NOP()
 {
-
 }
 
 void CCpu::HALT()
 {
 	cpuHalted = true;
-	op(-1, 0);
+	op(-1, 0); 
 }
 
 void CCpu::STOP()
-{}
+{
+}
 
 void CCpu::DI()
 {
@@ -803,4 +783,3 @@ void CCpu::debug()
 {
 	opcodeParse(0xE8);
 }
-

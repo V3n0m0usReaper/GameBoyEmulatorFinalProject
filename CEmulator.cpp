@@ -339,9 +339,9 @@ void CEmulator::setLCD()
 	if (currentLine >= 144)
 	{
 		mode = 1;
-		status = bitSet(status, BIT_0);
+		status = setBit(status, BIT_0);
 		status = clearBit(status, BIT_1);
-		interupt = setBit(status, BIT_4);
+		interupt = bitSet(status, BIT_4);
 	}
 	else
 	{
@@ -350,15 +350,15 @@ void CEmulator::setLCD()
 		if (scanlineCounter >= mode2Threshold)
 		{
 			mode = 2;
-			status = bitSet(status, BIT_1);
+			status = setBit(status, BIT_1);
 			status = clearBit(status, BIT_0);
-			interupt = setBit(status, BIT_5);
+			interupt = bitSet(status, BIT_5);
 		}
 		else if (scanlineCounter >= mode3Threshold)
 		{
-			mode = 2;
-			status = bitSet(status, BIT_1);
-			status = bitSet(status, BIT_0);
+			mode = 3;
+			status = setBit(status, BIT_1);
+			status = setBit(status, BIT_0);
 		
 		}
 		else
@@ -376,7 +376,7 @@ void CEmulator::setLCD()
 			
 			status = clearBit(status, BIT_1);
 			status = clearBit(status, BIT_0);
-			interupt = setBit(status, BIT_3);
+			interupt = bitSet(status, BIT_3);
 		}
 	}
 
@@ -440,7 +440,7 @@ void CEmulator::updateScanline(int cycles)
 void CEmulator::saveState(int id)
 {
 	ofstream file;
-	string filename = "./saves/" + memory.rom + "_" + to_string(id) + ".sav";
+	string filename = "GameROM/saves/" + memory.rom + "_" + to_string(id) + ".sav";
 	file.open(filename, ios::binary | ios::trunc);
 
 	if(!file.bad())
@@ -454,7 +454,7 @@ void CEmulator::saveState(int id)
 }
 void CEmulator::loadState(int id)
 {
-	string filename = "./saves/" + memory.rom + "_" + to_string(id) + ".sav";
+	string filename = "GameROM/saves/" + memory.rom + "_" + to_string(id) + ".sav";
 	ifstream file(filename, ios::binary);
 
 	if (file.is_open())

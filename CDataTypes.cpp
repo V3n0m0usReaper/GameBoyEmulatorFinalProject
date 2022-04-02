@@ -1,4 +1,5 @@
 #include "CDataTypes.h"
+
 Byte highByte(Byte16Bit target)
 {
 	return (Byte)(target >> 8) & 0xFF;
@@ -16,6 +17,7 @@ Byte highNibble(Byte target)
 
 Byte lowNibble(Byte target)
 {
+	Byte test = (target & 0xF);
 	return (target & 0xF);
 }
 
@@ -43,9 +45,6 @@ bool bitSet(Byte data, Byte bit)
 {
 	return ((data >> bit) & 1) ? true : false;
 }
-
-
-
 
 void Pair::increase()
 {
@@ -80,8 +79,6 @@ Address Pair::address()
 {
 	return combineByte(high, low);
 }
-
-
 
 MemoryRegister::MemoryRegister() {}
 

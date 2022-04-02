@@ -15,12 +15,11 @@ using namespace std;
 typedef uint16_t Address;
 typedef uint16_t Byte16Bit;
 
-typedef uint8_t Byte, Opcode;
- ;
+typedef uint8_t Byte;
+typedef uint8_t Opcode;
 
 typedef int8_t signedByte;
 typedef int16_t signedByte16Bit;
-
 
 const Byte BIT_7 = 7;
 const Byte BIT_6 = 6;
@@ -31,17 +30,12 @@ const Byte BIT_2 = 2;
 const Byte BIT_1 = 1;
 const Byte BIT_0 = 0;
 
-
-//this sets the values of the interrupt registers
-
 const Byte VBlankInterrupt = 0;
 const Byte LCDCInterrupt = 1;
 const Byte TimerInterrupt = 2;
 const Byte SerailInterrupt = 3;
 const Byte JoypadInterrupt = 4;
 
-
-// these are the key ID for the keys that will be used for the joypad of the emulator
 const int A = 0;
 const int B = 18;
 const int START = 25;
@@ -50,7 +44,6 @@ const int LEFT = 71;
 const int RIGHT = 72;
 const int UP = 73;
 const int DOWN = 74;
-
 
 Byte highByte(Byte16Bit data);
 Byte lowByte(Byte16Bit data);
@@ -61,7 +54,6 @@ bool betweenValues(Byte target, int low, int high);
 Byte setBit(Byte data, Byte bit);
 Byte clearBit(Byte data, Byte bit);
 bool bitSet(Byte data, Byte bit);
-
 
 class Pair
 {
